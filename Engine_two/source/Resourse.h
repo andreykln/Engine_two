@@ -6,7 +6,10 @@
 #include <string>
 
 
+
 class Resourse
 {
+public:
+	
 };
 

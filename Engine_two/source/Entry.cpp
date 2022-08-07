@@ -6,8 +6,22 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     _In_     int       nCmdShow)
 {
 
-    Application app(hInstance);
-    app.Initialize();
+	try
+	{
+		Application app(hInstance);
+		if (!app.Initialize())
+		{
+			MessageBox(nullptr, L"App failed to initialize", L"HR Failed", MB_OK);
+			return 0;
+		}
+			
+		app.Run();
+	}
+	catch (const DxException& e)
+	{
+		MessageBox(nullptr, e.ToString().c_str(), L"HR Failed", MB_OK);
+		return 0;
+	}
 
-    app.Run();
+	return 0;
 }

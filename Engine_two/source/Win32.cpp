@@ -31,12 +31,12 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (LOWORD(wParam) == WA_INACTIVE)
 		{
 			mAppPaused = true;
-			pTimer->Stop();
+			mTimer.Stop();
 		}
 		else
 		{
 			mAppPaused = false;
-			pTimer->Start();
+			mTimer.Start();
 		}
 		return DEF_WIND_PROC;
 	}
@@ -95,6 +95,7 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 		}
+		return DEF_WIND_PROC;
 	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -130,9 +131,10 @@ bool Win32::InitializeMainWindow()
 	AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
 	const int width = R.right - R.left;
 	const int height = R.bottom - R.top;
-
+	//HWND t;
 	mhMainWnd = CreateWindow(L"MainWnd", mMainWndCaption.c_str(),
 		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, mInstance, 0);
+	//mhMainWnd = &t;
 	if (!mhMainWnd)
 	{
 		MessageBox(0, L"CreateWindow Failed.", 0, 0);
@@ -147,9 +149,20 @@ bool Win32::InitializeMainWindow()
 	return true;
 }
 
-void Win32::SetTimer(Timer* t)
+void Win32::SetTimer(Timer& t)
 {
-	pTimer = t;
+	mTimer = t;
+}
+
+HWND Win32::GetMainWindow() const
+{
+	return mhMainWnd;
+}
+
+void Win32::SetWindowParams(int w, int h)
+{
+	mClientWidth = w;
+	mClientHeight = h;
 }
 
 void Win32::SetWindowTitle(const std::string& s) const

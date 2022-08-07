@@ -7,23 +7,29 @@ Application::Application(HINSTANCE hInstance) : mhAppInst(hInstance)
 	assert(instance == nullptr);
 	instance = this;
 	pWin32Handle = std::make_unique<Win32>(hInstance);
+	pWin32Handle->SetTimer(mTimer);
+	pWin32Handle->SetWindowParams(mWidth, mHeigth);
 
-	pTimer = new Timer();
-	pWin32Handle->SetTimer(pTimer);
 }
 
-bool Application::Initialize() const
+bool Application::Initialize()
 {
 	if(!InitializeMainWindow())
-	return false;
+		return false;
+	mhMainWnd = pWin32Handle->GetMainWindow();
+	//mRender = new Render(mhMainWnd, mWidth, mHeigth);
+	Render t = Render(mhMainWnd, mWidth, mHeigth);
+	mRender = &t;
+	mRender->InitializeD3D();
+
 
 	return true;
 }
 
-int Application::Run() const
+int Application::Run()
 {
 	MSG msg{};
-	pTimer->Reset();
+	mTimer.Reset();
 	while (msg.message != WM_QUIT)
 	{
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
@@ -33,10 +39,10 @@ int Application::Run() const
 		}
 		else
 		{
-			pTimer->Tick();
+			mTimer.Tick();
 			if (!pWin32Handle->IsPaused())
 			{
-				std::string t = std::to_string(pTimer->TotalTime());
+				std::string t = std::to_string(mTimer.TotalTime());
 				pWin32Handle->SetWindowTitle(t);
 				//TODO delete sleep, leave the one lower
 				Sleep(100);
