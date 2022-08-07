@@ -1,5 +1,7 @@
 #pragma once
 #include <d3d12.h>
+//#include <DXGI1_4.h>
+
 #include <DXGI1_5.h>
 #include <wrl.h>
 
@@ -16,15 +18,15 @@ public:
 	void CreateSwapChain() override;
 	void CreateDescriptorHeap(DescriptorHeap type, UINT numDesc, DescriptorHeapFlag flag, std::string name) override;
 private:
-	Microsoft::WRL::ComPtr<ID3D12Device> mDevice;
+	Microsoft::WRL::ComPtr<ID3D12Device5> mDevice;
 	Microsoft::WRL::ComPtr<ID3D12Fence> mFence;
-	Microsoft::WRL::ComPtr<IDXGIFactory4> mFactory;
-	Microsoft::WRL::ComPtr<ID3D12Debug> mDebugController;
+	Microsoft::WRL::ComPtr<IDXGIFactory5> mFactory;
+	Microsoft::WRL::ComPtr<ID3D12Debug3> mDebugController;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mDirectCmdListAlloc;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
 	static const int SwapChainBufferCount{ 2 };
-	Microsoft::WRL::ComPtr<IDXGISwapChain1> mSwapChain;
+	Microsoft::WRL::ComPtr<IDXGISwapChain4> mSwapChain;
 	UINT mRtvDescriptorSize{ 0 };
 	UINT mDsvDescriptorSize{ 0 };
 	UINT mCbvSrvUavDescriptorSize{ 0 };

@@ -2,10 +2,18 @@
 
 void Device_DirectX12::CreateDebugAndFactory()
 {
-	spdlog::info("Debug layer created");
 	ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(mDebugController.GetAddressOf())));
 	mDebugController->EnableDebugLayer();
+	mDebugController->SetEnableGPUBasedValidation(TRUE);
+	mDebugController->SetEnableSynchronizedCommandQueueValidation(TRUE);
+	mDebugController->SetGPUBasedValidationFlags(D3D12_GPU_BASED_VALIDATION_FLAGS_NONE);
+
 #ifdef _DEBUG	
+	spdlog::info("Debug layer created");
+	spdlog::info("GPU Based validation enabled");
+	spdlog::info("GPU based validation flags set to all");
+	spdlog::info("Synchronized command queue validation enabled");
+
 	ThrowIfFailed(CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(mFactory.ReleaseAndGetAddressOf())));
 
 	static const D3D_FEATURE_LEVEL s_featureLevels[] =
@@ -114,10 +122,15 @@ void Device_DirectX12::CreateSwapChain()
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
+	IDXGISwapChain1* pDXGIsw1 = nullptr;
 	ThrowIfFailed(mFactory->CreateSwapChainForHwnd(
 		mCommandQueue.Get(), hWnd,
 		&sd, nullptr, nullptr,
-		mSwapChain.ReleaseAndGetAddressOf()));
+		&pDXGIsw1));
+	//TODO IID_IDXGISwapChain4 instead of uuidof causes linker error
+	ThrowIfFailed(pDXGIsw1->QueryInterface(__uuidof(IDXGISwapChain4), (LPVOID*)mSwapChain.ReleaseAndGetAddressOf()));
+	pDXGIsw1->Release();
+	
 	//TODO usage??
 	DXGI_PRESENT_PARAMETERS presentParameters;
 	presentParameters.DirtyRectsCount = 0u;

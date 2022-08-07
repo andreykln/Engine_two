@@ -18,7 +18,7 @@ private:
 	HINSTANCE mhAppInst{ nullptr };
 	HWND      mhMainWnd;
 	int mWidth = 640;
-	int mHeigth = 320;
+	int mHeigth = 480;
 	Render* mRender;
 
 	bool    mFullscreenState{ false };

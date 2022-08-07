@@ -19,7 +19,7 @@ public:
 public:
 	static Win32* GetHandle();
 	HINSTANCE mInstance{};
-	HWND      mhMainWnd;
+	HWND      mhMainWnd{};
 	static Win32* mWindowInstance;
 	int		mClientWidth{};
 	int		mClientHeight{};
