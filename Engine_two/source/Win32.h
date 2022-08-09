@@ -1,5 +1,6 @@
 #pragma once
 #include "Utility.h"
+#include "Render.h"
 #include <cassert>
 #include <memory>
 #include <string>
@@ -14,6 +15,8 @@ public:
 	void SetTimer(Timer& t);
 	HWND GetMainWindow() const;
 	void SetWindowParams(int w, int h);
+	//width, heigth
+	std::pair<int, int> GetNewWindowParams() const;
 	void SetWindowTitle(const std::string& s) const;
 	bool IsPaused() const;
 public:

@@ -1,6 +1,7 @@
 #pragma once
 #include "Render.h"
 
+#include "Win32.h"
 class Application
 {
 public:
@@ -9,8 +10,10 @@ public:
 	Application& operator=(const Application& o) = delete;
 	bool Initialize();
 	int Run();
-	Application* GetApplication() const;
 private:
+	//TODO delete?
+	Application* GetApplication() const;
+	void DoFrame();
 	bool InitializeMainWindow() const;
 	std::unique_ptr<Win32> pWin32Handle;
 	Timer mTimer;
@@ -19,7 +22,7 @@ private:
 	HWND      mhMainWnd;
 	int mWidth = 640;
 	int mHeigth = 480;
-	Render* mRender;
+
 
 	bool    mFullscreenState{ false };
 	bool    m4xMsaaState{ false };

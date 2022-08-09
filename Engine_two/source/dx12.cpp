@@ -1,5 +1,7 @@
 #include "dx12.h"
 
+
+
 void Device_DirectX12::CreateDebugAndFactory()
 {
 	ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(mDebugController.GetAddressOf())));
@@ -98,7 +100,7 @@ void Device_DirectX12::CreateCommandObjects()
 		IID_PPV_ARGS(mCommandList.ReleaseAndGetAddressOf())));
 
 #ifdef _DEBUG
-	spdlog::info("Command objects created");
+	spdlog::info("Command object created");
 #endif // _DEBUG
 	mCommandList->Close();
 }
@@ -108,8 +110,8 @@ void Device_DirectX12::CreateSwapChain()
 	mSwapChain.Reset();
 
 	DXGI_SWAP_CHAIN_DESC1 sd;
-	sd.Width = width;
-	sd.Height = heigth;
+	sd.Width = mClientWidth;
+	sd.Height = mClientHeight;
 	sd.Format = mBackBufferFormat;
 	sd.Stereo = FALSE;
 	sd.SampleDesc = { 1, 0 };
@@ -178,5 +180,57 @@ void Device_DirectX12::CreateDescriptorHeap(DescriptorHeap type, UINT numDesc, D
 	spdlog::info("Descriptor heap {} created", name);
 #endif // _DEBUG
 
+}
+
+void Device_DirectX12::PrepareCommandList()
+{
+	ThrowIfFailed(mDirectCmdListAlloc->Reset());
+	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
+}
+
+void Device_DirectX12::CloseCommandList()
+{
+	ThrowIfFailed(mCommandList->Close());
+	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
+	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+}
+
+void Device_DirectX12::FlushCommandQueue()
+{
+	mCurrentFence++;
+	ThrowIfFailed(mCommandQueue->Signal(mFence.Get(), mCurrentFence));
+	if (mFence->GetCompletedValue() < mCurrentFence)
+	{
+		HANDLE eventHandle = CreateEventExA(nullptr, NULL, false, EVENT_ALL_ACCESS);
+		ThrowIfFailed(mFence->SetEventOnCompletion(mCurrentFence, eventHandle));
+		WaitForSingleObject(eventHandle, INFINITE);
+		CloseHandle(eventHandle);
+	}
+}
+
+void Device_DirectX12::ReleaseAndResizeSwapChain()
+{
+	for (int i = 0; i < SwapChainBufferCount; ++i)
+		mSwapChainBuffer[i].Reset();
+	mDepthStencilBuffer.Reset();
+
+	ThrowIfFailed(mSwapChain->ResizeBuffers(
+		SwapChainBufferCount,
+		mClientWidth, mClientHeight,
+		mBackBufferFormat,
+		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+
+	mCurrBackBuffer = 0;
+}
+
+void Device_DirectX12::CreateRenderTargetView()
+{
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(mDescriptorMap[mdhMapNames.renderTargetView]->GetCPUDescriptorHandleForHeapStart());
+	for (UINT i = 0; i < SwapChainBufferCount; i++)
+	{
+		ThrowIfFailed(mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffer[i])));
+		mDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
+		rtvHeapHandle.Offset(1, mRtvDescriptorSize);
+	}
 }
 

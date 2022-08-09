@@ -17,10 +17,8 @@ bool Application::Initialize()
 	if(!InitializeMainWindow())
 		return false;
 	mhMainWnd = pWin32Handle->GetMainWindow();
-	//mRender = new Render(mhMainWnd, mWidth, mHeigth);
-	Render t = Render(mhMainWnd, mWidth, mHeigth);
-	mRender = &t;
-	mRender->InitializeD3D();
+	Render::Initialize(mhMainWnd, mWidth, mHeigth);
+	Render::InitializeD3D();
 
 
 	return true;
@@ -44,6 +42,7 @@ int Application::Run()
 			{
 				std::string t = std::to_string(mTimer.TotalTime());
 				pWin32Handle->SetWindowTitle(t);
+				DoFrame();
 				//TODO delete sleep, leave the one lower
 				Sleep(100);
 			}
@@ -61,6 +60,13 @@ Application* Application::GetApplication() const
 {
 	return instance;
 }
+
+void Application::DoFrame()
+{
+	Render::DrawEmptyScreen();
+}
+
+
 
 bool Application::InitializeMainWindow() const
 {

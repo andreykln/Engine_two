@@ -44,15 +44,22 @@ public:
     void SetWindowParams(HWND handle, const int w, const int h);
     virtual ~Device(){};
 
-protected:
+public:
+
     //two in one because Debug needs to be enabled before creation of factory
 	virtual void CreateDebugAndFactory() = 0;
     virtual void CreateCommandObjects() = 0;
     virtual void CreateSwapChain() = 0;
     virtual void CreateDescriptorHeap(DescriptorHeap type, UINT numDesc, DescriptorHeapFlag flag, std::string name) = 0;
-    
+    virtual void PrepareCommandList() = 0;
+    virtual void CloseCommandList() = 0;
+    virtual void FlushCommandQueue() = 0;
+    virtual void ReleaseAndResizeSwapChain() = 0;
+    virtual void CreateRenderTargetView() = 0;
+
+    void GetNewWindowSize(std::pair<int,int> p);
 
     HWND hWnd;
-    int width;
-    int heigth;
+    int mClientWidth;
+    int mClientHeight;
 };

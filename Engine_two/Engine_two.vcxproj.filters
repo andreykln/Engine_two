@@ -77,5 +77,8 @@
     <ClInclude Include="source\Device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="vendor\d3dx12.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -44,7 +44,7 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		mClientWidth = LOWORD(lParam);
 		mClientHeight = LOWORD(lParam);
-		//TODO fix this
+		//TODO Resize fucntion is used here
 		if (true)
 		{
 			if (wParam == SIZE_MINIMIZED)
@@ -58,6 +58,7 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				mAppPaused = false;
 				mMinimized = false;
 				mMaximized = true;
+				//Render::OnResize();
 				//OnResize();
 			}
 			else if (wParam == SIZE_RESTORED)
@@ -163,6 +164,11 @@ void Win32::SetWindowParams(int w, int h)
 {
 	mClientWidth = w;
 	mClientHeight = h;
+}
+
+std::pair<int, int> Win32::GetNewWindowParams() const
+{
+	return std::pair<int, int>(mClientWidth, mClientHeight);
 }
 
 void Win32::SetWindowTitle(const std::string& s) const
