@@ -186,6 +186,9 @@ void Device_DirectX12::PrepareCommandList()
 {
 	ThrowIfFailed(mDirectCmdListAlloc->Reset());
 	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
+#ifdef _DEBUG
+	spdlog::info("Command list and allocator reset");
+#endif // _DEBUG
 }
 
 void Device_DirectX12::CloseCommandList()
@@ -221,6 +224,10 @@ void Device_DirectX12::ReleaseAndResizeSwapChain()
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 
 	mCurrBackBuffer = 0;
+#ifdef _DEBUG
+	spdlog::info("Swapchain resized with {} by {}", mClientWidth, mClientHeight);
+#endif // _DEBUG
+
 }
 
 void Device_DirectX12::CreateRenderTargetView()
@@ -232,5 +239,8 @@ void Device_DirectX12::CreateRenderTargetView()
 		mDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
 		rtvHeapHandle.Offset(1, mRtvDescriptorSize);
 	}
+#ifdef _DEBUG
+	spdlog::info("Create render target view");
+#endif // _DEBUG
 }
 

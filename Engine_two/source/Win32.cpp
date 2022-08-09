@@ -58,7 +58,7 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				mAppPaused = false;
 				mMinimized = false;
 				mMaximized = true;
-				//Render::OnResize();
+				Render::OnResize();
 				//OnResize();
 			}
 			else if (wParam == SIZE_RESTORED)

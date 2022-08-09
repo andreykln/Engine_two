@@ -3,11 +3,8 @@
 //#include <DXGI1_4.h>
 
 #include <DXGI1_5.h>
-#include <wrl.h>
 #include "d3dx12.h"
 #include "Device.h"
-#include <unordered_map>
-#include "spdlog/spdlog.h"
 //#pragma comment(lib, "dxgi.lib")
 
 class Device_DirectX12 : public Device

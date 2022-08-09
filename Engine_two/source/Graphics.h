@@ -1,6 +1,10 @@
 #pragma once
-
+#include <wrl.h>
+#include <unordered_map>
+#include <cassert>
+#include <memory>
 #include <string>
+#include "spdlog/spdlog.h"
 
 enum class DescriptorHeap
 {

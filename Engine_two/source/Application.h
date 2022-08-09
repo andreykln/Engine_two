@@ -1,6 +1,4 @@
 #pragma once
-#include "Render.h"
-
 #include "Win32.h"
 class Application
 {

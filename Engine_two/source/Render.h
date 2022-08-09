@@ -1,6 +1,6 @@
 #pragma once
 #include "Resourse.h"
-#include "Win32.h"
+//#include "Win32.h"
 #include "dx11.h"
 #include "dx12.h"
 

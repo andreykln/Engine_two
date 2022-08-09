@@ -1,9 +1,6 @@
 #pragma once
 #include "Utility.h"
 #include "Render.h"
-#include <cassert>
-#include <memory>
-#include <string>
 class Win32
 {
 public:
