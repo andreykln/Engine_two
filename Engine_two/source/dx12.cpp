@@ -2,6 +2,20 @@
 
 
 
+bool Device_DirectX12::DeviceInitialized()
+{
+	if (mDevice)
+		return true;
+	return false;
+}
+
+void Device_DirectX12::D3DInitialized()
+{
+	assert(mDevice);
+	assert(mSwapChain);
+	assert(mDirectCmdListAlloc);
+}
+
 void Device_DirectX12::CreateDebugAndFactory()
 {
 	ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(mDebugController.GetAddressOf())));
@@ -133,12 +147,6 @@ void Device_DirectX12::CreateSwapChain()
 	ThrowIfFailed(pDXGIsw1->QueryInterface(__uuidof(IDXGISwapChain4), (LPVOID*)mSwapChain.ReleaseAndGetAddressOf()));
 	pDXGIsw1->Release();
 	
-	//TODO usage??
-	DXGI_PRESENT_PARAMETERS presentParameters;
-	presentParameters.DirtyRectsCount = 0u;
-	presentParameters.pDirtyRects = NULL;
-	presentParameters.pScrollOffset = NULL;
-	presentParameters.pScrollRect = NULL;
 }
 
 void Device_DirectX12::CreateDescriptorHeap(DescriptorHeap type, UINT numDesc, DescriptorHeapFlag flag, std::string name)
@@ -184,7 +192,6 @@ void Device_DirectX12::CreateDescriptorHeap(DescriptorHeap type, UINT numDesc, D
 
 void Device_DirectX12::PrepareCommandList()
 {
-	//ThrowIfFailed(mDirectCmdListAlloc->Reset());
 	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
 #ifdef _DEBUG
 	spdlog::info("Command list reset");

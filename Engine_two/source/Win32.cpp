@@ -45,8 +45,7 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		mClientWidth = LOWORD(lParam);
 		mClientHeight = LOWORD(lParam);
 		Render::GetNewWindowSize(mClientWidth, mClientHeight);
-		//TODO Resize fucntion is used here
-		if (true)
+		if (Render::DeviceInitialized())
 		{
 			if (wParam == SIZE_MINIMIZED)
 			{
@@ -92,8 +91,7 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 				else // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
 				{
-					//TODO
-					//Render::OnResize();
+					Render::OnResize();
 				}
 			}
 		}

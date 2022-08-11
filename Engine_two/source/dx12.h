@@ -10,11 +10,14 @@
 class Device_DirectX12 : public Device
 {
 public:
+	bool DeviceInitialized() override;
+	void D3DInitialized() override;
 	void CreateDebugAndFactory() override;
 	void CreateCommandObjects() override;
 	void CreateSwapChain() override;
 	void CreateDescriptorHeap(DescriptorHeap type, UINT numDesc, DescriptorHeapFlag flag, std::string name) override;
 	void PrepareCommandList() override;
+	void PrepareCommandListAndAllocator() override;
 	void CloseCommandList() override;
 	void FlushCommandQueue() override;
 	void ReleaseAndResizeSwapChain() override;
@@ -28,7 +31,6 @@ public:
 	void SetRenderTarget() override;
 	void PrepareRTVtoPresent() override;
 	void Present() override;
-	void PrepareCommandListAndAllocator() override;
 private:
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
 	ID3D12Resource* CurrentBackBuffer() const;

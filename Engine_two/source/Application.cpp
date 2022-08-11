@@ -55,11 +55,6 @@ int Application::Run()
 	return static_cast<int>(msg.wParam);
 }
 
-Application* Application::GetApplication() const
-{
-	return instance;
-}
-
 void Application::DoFrame()
 {
 	Render::DrawEmptyScreen();

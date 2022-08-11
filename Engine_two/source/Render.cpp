@@ -13,6 +13,26 @@ Render& Render::Initialize(HWND handle, const int w, const int h)
 	return *instance;
 }
 
+bool Render::DeviceInitialized()
+{
+#ifdef _DIRECTX12	
+	return mDX12Device->DeviceInitialized();
+#endif //_DIRECTX12
+#ifdef _DIRECTX11	
+
+#endif //_DIRECTX11
+}
+
+void Render::D3DInitialized()
+{
+#ifdef _DIRECTX12	
+	mDX12Device->D3DInitialized();
+#endif //_DIRECTX12
+#ifdef _DIRECTX11	
+
+#endif //_DIRECTX11
+}
+
 void Render::InitializeD3D()
 {
 	mDX12Device->CreateDebugAndFactory();
@@ -26,7 +46,7 @@ void Render::InitializeD3D()
 
 void Render::OnResize()
 {
-	
+	Device()->D3DInitialized();
 	Device()->FlushCommandQueue();
 	Device()->PrepareCommandList();
 	Device()->ReleaseAndResizeSwapChain();

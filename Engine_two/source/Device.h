@@ -47,6 +47,8 @@ public:
 public:
 
     //two in one because Debug needs to be enabled before creation of factory
+    virtual bool DeviceInitialized() = 0;
+    virtual void D3DInitialized() = 0;
 	virtual void CreateDebugAndFactory() = 0;
     virtual void CreateCommandObjects() = 0;
     virtual void CreateSwapChain() = 0;

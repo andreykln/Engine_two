@@ -9,8 +9,6 @@ public:
 	bool Initialize();
 	int Run();
 private:
-	//TODO delete?
-	Application* GetApplication() const;
 	void DoFrame();
 	bool InitializeMainWindow() const;
 	std::unique_ptr<Win32> pWin32Handle;

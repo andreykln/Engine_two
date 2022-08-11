@@ -9,6 +9,8 @@ class Render
 {
 public:
 	static Render& Initialize(HWND handle, const int w, const int h);
+	static bool DeviceInitialized();
+	static void D3DInitialized();
 	static void InitializeD3D();
 	static void OnResize();
 	static void DrawEmptyScreen();
