@@ -44,6 +44,7 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		mClientWidth = LOWORD(lParam);
 		mClientHeight = LOWORD(lParam);
+		Render::GetNewWindowSize(mClientWidth, mClientHeight);
 		//TODO Resize fucntion is used here
 		if (true)
 		{
@@ -59,7 +60,6 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				mMinimized = false;
 				mMaximized = true;
 				Render::OnResize();
-				//OnResize();
 			}
 			else if (wParam == SIZE_RESTORED)
 			{
@@ -69,7 +69,7 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				{
 					mAppPaused = false;
 					mMinimized = false;
-					//OnResize();
+					Render::OnResize();
 				}
 
 				// Restoring from maximized state?
@@ -77,7 +77,7 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				{
 					mAppPaused = false;
 					mMaximized = false;
-					//OnResize();
+					Render::OnResize();
 				}
 				else if (mResizing)
 				{
@@ -92,12 +92,24 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 				else // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
 				{
-					//OnResize();
+					//TODO
+					//Render::OnResize();
 				}
 			}
 		}
 		return DEF_WIND_PROC;
 	}
+	case WM_ENTERSIZEMOVE:
+		mAppPaused = true;
+		mResizing = true;
+		mTimer.Stop();
+		return DEF_WIND_PROC;
+	case WM_EXITSIZEMOVE:
+		mAppPaused = false;
+		mResizing = false;
+		mTimer.Start();
+		Render::OnResize();
+		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return DEF_WIND_PROC;
@@ -164,11 +176,6 @@ void Win32::SetWindowParams(int w, int h)
 {
 	mClientWidth = w;
 	mClientHeight = h;
-}
-
-std::pair<int, int> Win32::GetNewWindowParams() const
-{
-	return std::pair<int, int>(mClientWidth, mClientHeight);
 }
 
 void Win32::SetWindowTitle(const std::string& s) const

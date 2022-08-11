@@ -7,8 +7,9 @@ void Device::SetWindowParams(HWND handle, const int w, const int h)
 	mClientHeight = h;
 }
 
-void Device::GetNewWindowSize(std::pair<int, int> p)
+void Device::GetNewWindowSize(int w, int h)
 {
-	mClientWidth = p.first;
-	mClientHeight = p.second;
+	mClientWidth = w;
+	mClientHeight = h;
 }
+

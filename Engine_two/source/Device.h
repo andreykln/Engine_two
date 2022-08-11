@@ -56,8 +56,18 @@ public:
     virtual void FlushCommandQueue() = 0;
     virtual void ReleaseAndResizeSwapChain() = 0;
     virtual void CreateRenderTargetView() = 0;
+    virtual void PrepareRenderTarget() = 0;
+    virtual void PrepareRTVtoPresent() = 0;
+    virtual void CreateDepthStencilView() = 0;
+    virtual void SetDepthStencilView() = 0;
+    virtual void UpdateViewport() = 0;
+    virtual void SetViewportScissorRect() = 0;
+    virtual void ClearRTVAndStencil() = 0;
+    virtual void SetRenderTarget() = 0;
+    virtual void Present() = 0;
+    virtual void PrepareCommandListAndAllocator() = 0;
 
-    void GetNewWindowSize(std::pair<int,int> p);
+    void GetNewWindowSize(int w, int h);
 
     HWND hWnd;
     int mClientWidth;

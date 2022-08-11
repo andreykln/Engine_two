@@ -19,7 +19,20 @@ public:
 	void FlushCommandQueue() override;
 	void ReleaseAndResizeSwapChain() override;
 	void CreateRenderTargetView() override;
+	void CreateDepthStencilView() override;
+	void SetDepthStencilView() override;
+	void UpdateViewport() override;
+	void SetViewportScissorRect() override;
+	void ClearRTVAndStencil() override;
+	void PrepareRenderTarget() override;
+	void SetRenderTarget() override;
+	void PrepareRTVtoPresent() override;
+	void Present() override;
+	void PrepareCommandListAndAllocator() override;
 private:
+	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
+	ID3D12Resource* CurrentBackBuffer() const;
+	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
 	Microsoft::WRL::ComPtr<ID3D12Device5> mDevice;
 	Microsoft::WRL::ComPtr<ID3D12Fence> mFence;
 	UINT64 mCurrentFence = 0;
@@ -33,16 +46,21 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> mSwapChain;
 	Microsoft::WRL::ComPtr<ID3D12Resource> mSwapChainBuffer[SwapChainBufferCount];
 	Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
+	//Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mRtvHeap;
+	//Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mDsvHeap;
+
 	UINT mRtvDescriptorSize{ 0 };
 	UINT mDsvDescriptorSize{ 0 };
 	UINT mCbvSrvUavDescriptorSize{ 0 };
 	UINT m4xMsaaQuality;
+	D3D12_VIEWPORT mScreenViewport;
+	D3D12_RECT mScissorRect;
 	//TODO figure out MS
 	bool m4xMsaaState = false;
 	const DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	const DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>> mDescriptorMap;
-	DescriptorHeapMap mdhMapNames;
+	const DescriptorHeapMap mDescriptorHeapMapNames;
 };
 
 

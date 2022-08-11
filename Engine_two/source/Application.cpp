@@ -19,7 +19,8 @@ bool Application::Initialize()
 	mhMainWnd = pWin32Handle->GetMainWindow();
 	Render::Initialize(mhMainWnd, mWidth, mHeigth);
 	Render::InitializeD3D();
-
+	//initial resize run
+	Render::OnResize();
 
 	return true;
 }
@@ -43,8 +44,6 @@ int Application::Run()
 				std::string t = std::to_string(mTimer.TotalTime());
 				pWin32Handle->SetWindowTitle(t);
 				DoFrame();
-				//TODO delete sleep, leave the one lower
-				Sleep(100);
 			}
 			else
 			{

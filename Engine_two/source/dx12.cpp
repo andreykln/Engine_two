@@ -184,10 +184,10 @@ void Device_DirectX12::CreateDescriptorHeap(DescriptorHeap type, UINT numDesc, D
 
 void Device_DirectX12::PrepareCommandList()
 {
-	ThrowIfFailed(mDirectCmdListAlloc->Reset());
+	//ThrowIfFailed(mDirectCmdListAlloc->Reset());
 	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
 #ifdef _DEBUG
-	spdlog::info("Command list and allocator reset");
+	spdlog::info("Command list reset");
 #endif // _DEBUG
 }
 
@@ -216,14 +216,13 @@ void Device_DirectX12::ReleaseAndResizeSwapChain()
 	for (int i = 0; i < SwapChainBufferCount; ++i)
 		mSwapChainBuffer[i].Reset();
 	mDepthStencilBuffer.Reset();
-
+	mCurrBackBuffer = 0;
 	ThrowIfFailed(mSwapChain->ResizeBuffers(
 		SwapChainBufferCount,
 		mClientWidth, mClientHeight,
 		mBackBufferFormat,
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 
-	mCurrBackBuffer = 0;
 #ifdef _DEBUG
 	spdlog::info("Swapchain resized with {} by {}", mClientWidth, mClientHeight);
 #endif // _DEBUG
@@ -232,7 +231,7 @@ void Device_DirectX12::ReleaseAndResizeSwapChain()
 
 void Device_DirectX12::CreateRenderTargetView()
 {
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(mDescriptorMap[mdhMapNames.renderTargetView]->GetCPUDescriptorHandleForHeapStart());
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(mDescriptorMap[mDescriptorHeapMapNames.renderTargetView]->GetCPUDescriptorHandleForHeapStart());
 	for (UINT i = 0; i < SwapChainBufferCount; i++)
 	{
 		ThrowIfFailed(mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffer[i])));
@@ -244,3 +243,138 @@ void Device_DirectX12::CreateRenderTargetView()
 #endif // _DEBUG
 }
 
+void Device_DirectX12::PrepareRenderTarget()
+{
+	CD3DX12_RESOURCE_BARRIER t = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	mCommandList->ResourceBarrier(1, &t);
+}
+
+void Device_DirectX12::SetRenderTarget()
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE t = DepthStencilView();
+	D3D12_CPU_DESCRIPTOR_HANDLE m = CurrentBackBufferView();
+	mCommandList->OMSetRenderTargets(1,
+		&m,
+		true, &t);
+}
+
+void Device_DirectX12::PrepareRTVtoPresent()
+{
+	CD3DX12_RESOURCE_BARRIER t = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+
+	mCommandList->ResourceBarrier(1, &t);
+}
+
+void Device_DirectX12::Present()
+{
+	ThrowIfFailed(mSwapChain->Present(0, 0));
+	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
+}
+
+void Device_DirectX12::PrepareCommandListAndAllocator()
+{
+	ThrowIfFailed(mDirectCmdListAlloc->Reset());
+	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
+}
+
+void Device_DirectX12::CreateDepthStencilView()
+{
+	D3D12_RESOURCE_DESC depthStencilDesc;
+	depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	depthStencilDesc.Alignment = 0;
+	depthStencilDesc.Width = mClientWidth;
+	depthStencilDesc.Height = mClientHeight;
+	depthStencilDesc.DepthOrArraySize = 1;
+	depthStencilDesc.MipLevels = 1;
+	depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	depthStencilDesc.SampleDesc.Count = m4xMsaaState ? 4 : 1;
+	depthStencilDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
+	depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+	D3D12_CLEAR_VALUE optClear;
+	optClear.Format = mDepthStencilFormat;
+	optClear.DepthStencil.Depth = 1.0f;
+	optClear.DepthStencil.Stencil = 0;
+
+	//TODO wtf
+	CD3DX12_HEAP_PROPERTIES hp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+	ThrowIfFailed(mDevice->CreateCommittedResource(
+		&hp,
+		D3D12_HEAP_FLAG_NONE,
+		&depthStencilDesc,
+		D3D12_RESOURCE_STATE_COMMON,
+		&optClear,
+		IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf())));
+
+	// Create descriptor to mip level 0 of entire resource using the format of the resource.
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Format = mDepthStencilFormat;
+	dsvDesc.Texture2D.MipSlice = 0;
+	mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &dsvDesc, DepthStencilView());
+
+#ifdef _DEBUG
+	spdlog::info("Depth stencil view created");
+#endif // _DEBUG
+}
+
+void Device_DirectX12::SetDepthStencilView()
+{
+	CD3DX12_RESOURCE_BARRIER t = CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
+		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	mCommandList->ResourceBarrier(1, &t);
+}
+
+void Device_DirectX12::UpdateViewport()
+{
+	mScreenViewport.TopLeftX = 0;
+	mScreenViewport.TopLeftY = 0;
+	mScreenViewport.Width = static_cast<float>(mClientWidth);
+	mScreenViewport.Height = static_cast<float>(mClientHeight);
+	mScreenViewport.MinDepth = 0.0f;
+	mScreenViewport.MaxDepth = 1.0f;
+#ifdef _DEBUG
+	spdlog::info("view port updated");
+#endif // _DEBUG
+
+	mScissorRect = { 0, 0, mClientWidth, mClientHeight };
+}
+
+void Device_DirectX12::SetViewportScissorRect()
+{
+	mCommandList->RSSetViewports(1, &mScreenViewport);
+	mCommandList->RSSetScissorRects(1, &mScissorRect);
+}
+
+void Device_DirectX12::ClearRTVAndStencil()
+{
+	mCommandList->ClearRenderTargetView(CurrentBackBufferView(), DirectX::Colors::LightSteelBlue, 0, nullptr);
+	mCommandList->ClearDepthStencilView(DepthStencilView(),
+		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
+		1.0f, 0, 0, nullptr);
+
+}
+
+
+
+D3D12_CPU_DESCRIPTOR_HANDLE Device_DirectX12::DepthStencilView()const
+{
+	return mDescriptorMap.at(mDescriptorHeapMapNames.depthStencilView)->GetCPUDescriptorHandleForHeapStart();
+}
+
+
+ID3D12Resource* Device_DirectX12::CurrentBackBuffer()const
+{
+	return mSwapChainBuffer[mCurrBackBuffer].Get();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE Device_DirectX12::CurrentBackBufferView()const
+{
+	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
+		mDescriptorMap.at(mDescriptorHeapMapNames.renderTargetView)->GetCPUDescriptorHandleForHeapStart(),
+		mCurrBackBuffer,
+		mRtvDescriptorSize);
+}

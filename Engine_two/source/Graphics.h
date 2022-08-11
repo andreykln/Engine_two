@@ -4,6 +4,8 @@
 #include <cassert>
 #include <memory>
 #include <string>
+#include <DirectXColors.h>
+
 #include "spdlog/spdlog.h"
 
 enum class DescriptorHeap

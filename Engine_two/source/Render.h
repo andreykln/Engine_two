@@ -12,7 +12,7 @@ public:
 	static void InitializeD3D();
 	static void OnResize();
 	static void DrawEmptyScreen();
-
+	static void GetNewWindowSize(int w, int h);
 private:
 	Render() {};
 	static Device* Device();

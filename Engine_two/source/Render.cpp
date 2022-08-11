@@ -27,19 +27,34 @@ void Render::InitializeD3D()
 void Render::OnResize()
 {
 	
-	//Device()->GetNewWindowSize()
 	Device()->FlushCommandQueue();
 	Device()->PrepareCommandList();
 	Device()->ReleaseAndResizeSwapChain();
 	Device()->CreateRenderTargetView();
-
+	Device()->CreateDepthStencilView();
+	Device()->SetDepthStencilView();
+	Device()->CloseCommandList();
+	Device()->FlushCommandQueue();
+	Device()->UpdateViewport();
 }
 
 void Render::DrawEmptyScreen()
 {
-	Device()->PrepareCommandList();
+	Device()->PrepareCommandListAndAllocator();
+	Device()->PrepareRenderTarget();
+	Device()->SetViewportScissorRect();
+	Device()->ClearRTVAndStencil();
+	Device()->SetRenderTarget();
+	Device()->PrepareRTVtoPresent();
 	Device()->CloseCommandList();
+	Device()->Present();
 	Device()->FlushCommandQueue();
+}
+
+void Render::GetNewWindowSize(int w, int h)
+{
+	Device()->GetNewWindowSize(w, h);
+
 }
 
 Device* Render::Device()
