@@ -5,7 +5,8 @@
 #include <DXGI1_5.h>
 #include "d3dx12.h"
 #include "Device.h"
-//#pragma comment(lib, "dxgi.lib")
+
+#pragma comment(lib, "dxgi.lib")
 
 class Device_DirectX12 : public Device
 {
@@ -54,11 +55,8 @@ private:
 	UINT mRtvDescriptorSize{ 0 };
 	UINT mDsvDescriptorSize{ 0 };
 	UINT mCbvSrvUavDescriptorSize{ 0 };
-	UINT m4xMsaaQuality;
 	D3D12_VIEWPORT mScreenViewport;
 	D3D12_RECT mScissorRect;
-	//TODO figure out MS
-	bool m4xMsaaState = false;
 	const DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	const DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>> mDescriptorMap;

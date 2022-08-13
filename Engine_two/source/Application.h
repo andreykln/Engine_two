@@ -20,7 +20,7 @@ private:
 	int mHeigth = 480;
 
 
-	bool    mFullscreenState{ false };
+	//bool    mFullscreenState{ false };
 	bool    m4xMsaaState{ false };
 	UINT    m4xMsaaQuality{ 0 };
 

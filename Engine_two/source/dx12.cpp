@@ -79,20 +79,8 @@ void Device_DirectX12::CreateDebugAndFactory()
 	spdlog::info("DSV Descriptor size: {}", mDsvDescriptorSize);
 	spdlog::info("CBV_SRV_UAV Descriptor size: {}", mCbvSrvUavDescriptorSize);
 #endif // _DEBUG
-	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
-	msQualityLevels.Format = mBackBufferFormat;
-	msQualityLevels.SampleCount = 4;
-	msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
-	msQualityLevels.NumQualityLevels = 0;
 
-	ThrowIfFailed(mDevice->CheckFeatureSupport(
-		D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
-		&msQualityLevels,
-		sizeof(msQualityLevels)));
 
-	m4xMsaaQuality = msQualityLevels.NumQualityLevels;
-	assert(m4xMsaaQuality > 0 && "Unexpected MSAA quality level.");
-	
 }
 
 void Device_DirectX12::CreateCommandObjects()
@@ -130,8 +118,8 @@ void Device_DirectX12::CreateSwapChain()
 	sd.Stereo = FALSE;
 	sd.SampleDesc = { 1, 0 };
 	sd.Scaling = DXGI_SCALING_STRETCH;
-	sd.SampleDesc.Count = m4xMsaaState ? 4 : 1;
-	sd.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
+	sd.SampleDesc.Count = 1;
+	sd.SampleDesc.Quality = 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.BufferCount = SwapChainBufferCount;
 	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
@@ -143,8 +131,10 @@ void Device_DirectX12::CreateSwapChain()
 		mCommandQueue.Get(), hWnd,
 		&sd, nullptr, nullptr,
 		&pDXGIsw1));
-	//TODO IID_IDXGISwapChain4 instead of uuidof causes linker error
+	//TODO IID_IDXGISwapChain4 instead of uuidof causes linker error, possible to ignore?
 	ThrowIfFailed(pDXGIsw1->QueryInterface(__uuidof(IDXGISwapChain4), (LPVOID*)mSwapChain.ReleaseAndGetAddressOf()));
+	//ThrowIfFailed(pDXGIsw1->QueryInterface(IID_IDXGISwapChain4, (LPVOID*)mSwapChain.ReleaseAndGetAddressOf()));
+
 	pDXGIsw1->Release();
 	
 }
@@ -296,8 +286,8 @@ void Device_DirectX12::CreateDepthStencilView()
 	depthStencilDesc.DepthOrArraySize = 1;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-	depthStencilDesc.SampleDesc.Count = m4xMsaaState ? 4 : 1;
-	depthStencilDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
+	depthStencilDesc.SampleDesc.Count = 1;
+	depthStencilDesc.SampleDesc.Quality = 0;
 	depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 	D3D12_CLEAR_VALUE optClear;
