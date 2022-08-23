@@ -2,11 +2,3 @@
 
 
 
-
-
-class Resourse
-{
-public:
-	
-};
-

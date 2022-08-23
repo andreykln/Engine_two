@@ -13,7 +13,7 @@ class Device_DirectX12 : public Device
 public:
 	bool DeviceInitialized() override;
 	void D3DInitialized() override;
-	void CreateDebugAndFactory() override;
+	void CreateDeviceDebugFactory() override;
 	void CreateCommandObjects() override;
 	void CreateSwapChain() override;
 	void CreateDescriptorHeap(DescriptorHeap type, UINT numDesc, DescriptorHeapFlag flag, std::string name) override;

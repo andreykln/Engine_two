@@ -1,7 +1,5 @@
 #include "dx12.h"
 
-
-
 bool Device_DirectX12::DeviceInitialized()
 {
 	if (mDevice)
@@ -16,9 +14,12 @@ void Device_DirectX12::D3DInitialized()
 	assert(mDirectCmdListAlloc);
 }
 
-void Device_DirectX12::CreateDebugAndFactory()
+void Device_DirectX12::CreateDeviceDebugFactory()
 {
+#ifdef _DIRECTX12
 	ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(mDebugController.GetAddressOf())));
+#endif // _DIRECTX12
+
 	mDebugController->EnableDebugLayer();
 	mDebugController->SetEnableGPUBasedValidation(TRUE);
 	mDebugController->SetEnableSynchronizedCommandQueueValidation(TRUE);
@@ -40,7 +41,9 @@ void Device_DirectX12::CreateDebugAndFactory()
 		D3D_FEATURE_LEVEL_11_1,
 		D3D_FEATURE_LEVEL_11_0,
 	};
+#ifdef _DIRECTX12
 	ThrowIfFailed(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(mDevice.ReleaseAndGetAddressOf())));
+#endif // _DIRECTX12
 	ThrowIfFailed(mDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&mFence)));
 
 	D3D12_FEATURE_DATA_FEATURE_LEVELS featLevels =
@@ -67,9 +70,12 @@ void Device_DirectX12::CreateDebugAndFactory()
 	spdlog::info("Feature level: {}", featureLevelNames.at(featureLevel));
 #endif
 #ifndef _DEBUG
+#ifdef _DIRECTX12
 	CreateDXGIFactory2(0, IID_PPV_ARGS(mFactory.ReleaseAndGetAddressOf()));
 	ThrowIfFailed(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(mDevice.ReleaseAndGetAddressOf())));
 	ThrowIfFailed(mDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&mFence)));
+#endif // !_DIRECTX12
+
 #endif
 	mRtvDescriptorSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	mDsvDescriptorSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
@@ -348,7 +354,7 @@ void Device_DirectX12::SetViewportScissorRect()
 
 void Device_DirectX12::ClearRTVAndStencil()
 {
-	mCommandList->ClearRenderTargetView(CurrentBackBufferView(), DirectX::Colors::LightSteelBlue, 0, nullptr);
+	mCommandList->ClearRenderTargetView(CurrentBackBufferView(), mRTVClearColor, 0, nullptr);
 	mCommandList->ClearDepthStencilView(DepthStencilView(),
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
 		1.0f, 0, 0, nullptr);

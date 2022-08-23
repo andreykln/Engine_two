@@ -1,7 +1,7 @@
 #include "Render.h"
 
 Device_DirectX12* Render::mDX12Device = new Device_DirectX12;
-//Device_DirectX11* Render::mDX11Device = new Device_DirectX11();
+Device_DirectX11* Render::mDX11Device = new Device_DirectX11;
 DescriptorHeapMap Render::mdhMapNames;
 
 
@@ -19,7 +19,7 @@ bool Render::DeviceInitialized()
 	return mDX12Device->DeviceInitialized();
 #endif //_DIRECTX12
 #ifdef _DIRECTX11	
-
+	return mDX11Device->DeviceInitialized();
 #endif //_DIRECTX11
 }
 
@@ -29,18 +29,18 @@ void Render::D3DInitialized()
 	mDX12Device->D3DInitialized();
 #endif //_DIRECTX12
 #ifdef _DIRECTX11	
-
+	mDX11Device->D3DInitialized();
 #endif //_DIRECTX11
 }
 
 void Render::InitializeD3D()
 {
-	mDX12Device->CreateDebugAndFactory();
-	mDX12Device->CreateCommandObjects();
-	mDX12Device->CreateSwapChain();
+	Device()->CreateDeviceDebugFactory();
+	Device()->CreateCommandObjects();
+	Device()->CreateSwapChain();
 	//swap chain DH
-	mDX12Device->CreateDescriptorHeap(DescriptorHeap::RTV, 2, DescriptorHeapFlag::None, mdhMapNames.renderTargetView);
-	mDX12Device->CreateDescriptorHeap(DescriptorHeap::DSV, 1, DescriptorHeapFlag::None, mdhMapNames.depthStencilView);
+	Device()->CreateDescriptorHeap(DescriptorHeap::RTV, 2, DescriptorHeapFlag::None, mdhMapNames.renderTargetView);
+	Device()->CreateDescriptorHeap(DescriptorHeap::DSV, 1, DescriptorHeapFlag::None, mdhMapNames.depthStencilView);
 
 }
 
@@ -83,13 +83,18 @@ Device* Render::Device()
 	return mDX12Device;
 #endif //_DIRECTX12
 #ifdef _DIRECTX11	
-
+	return mDX11Device;
 #endif //_DIRECTX11
 }
 
 void Render::CreateRender(HWND handle, const int w, const int h)
 {
+#ifdef _DIRECTX12	
 	mDX12Device->SetWindowParams(handle, w, h);
+#endif //_DIRECTX12
+#ifdef _DIRECTX11	
+	mDX11Device->SetWindowParams(handle, w, h);
+#endif //_DIRECTX11
 }
 
 

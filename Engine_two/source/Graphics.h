@@ -5,7 +5,6 @@
 #include <memory>
 #include <string>
 #include <DirectXColors.h>
-
 #include "spdlog/spdlog.h"
 
 enum class DescriptorHeap
@@ -29,3 +28,10 @@ struct DescriptorHeapMap
 	std::string depthStencilView = "DepthStencilView";
 	
 };
+
+struct Resource
+{
+	std::shared_ptr<void> internal_state;
+	bool IsValid() const { return internal_state.get() != nullptr; }
+};
+
