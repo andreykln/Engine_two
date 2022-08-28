@@ -11,8 +11,8 @@
 class Device_DirectX12 : public Device
 {
 public:
-	bool DeviceInitialized() override;
-	void D3DInitialized() override;
+	bool DeviceInitialized() const override;
+	void D3DInitialized() const override;
 	void CreateDeviceDebugFactory() override;
 	void CreateCommandObjects() override;
 	void CreateSwapChain() override;
@@ -27,7 +27,7 @@ public:
 	void SetDepthStencilView() override;
 	void UpdateViewport() override;
 	void SetViewportScissorRect() override;
-	void ClearRTVAndStencil() override;
+	void ClearRTVAndStencil() const override;
 	void PrepareRenderTarget() override;
 	void SetRenderTarget() override;
 	void PrepareRTVtoPresent() override;

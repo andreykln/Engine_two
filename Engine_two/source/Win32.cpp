@@ -185,11 +185,10 @@ void Win32::SetWindowParams(int w, int h)
 
 void Win32::SetWindowTitle(const std::string& s) const
 {
-	
 	SetWindowTextA(mhMainWnd, s.c_str());
 }
 
-bool Win32::IsPaused() const
+const bool Win32::IsPaused() const
 {
 	return mAppPaused;
 }

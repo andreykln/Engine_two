@@ -1,13 +1,13 @@
 #include "dx12.h"
 
-bool Device_DirectX12::DeviceInitialized()
+bool Device_DirectX12::DeviceInitialized() const
 {
 	if (mDevice)
 		return true;
 	return false;
 }
 
-void Device_DirectX12::D3DInitialized()
+void Device_DirectX12::D3DInitialized() const
 {
 	assert(mDevice);
 	assert(mSwapChain);
@@ -352,7 +352,7 @@ void Device_DirectX12::SetViewportScissorRect()
 	mCommandList->RSSetScissorRects(1, &mScissorRect);
 }
 
-void Device_DirectX12::ClearRTVAndStencil()
+void Device_DirectX12::ClearRTVAndStencil() const
 {
 	mCommandList->ClearRenderTargetView(CurrentBackBufferView(), mRTVClearColor, 0, nullptr);
 	mCommandList->ClearDepthStencilView(DepthStencilView(),

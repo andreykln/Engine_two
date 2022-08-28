@@ -19,13 +19,13 @@ struct DxException
         return FunctionName + L" failed in " + Filename + L"; line " + std::to_wstring(LineNumber) + L"; error: " + msg;
     }
 
-    HRESULT ErrorCode = S_OK;
+    HRESULT ErrorCode;
     std::wstring FunctionName;
     std::wstring Filename;
-    int LineNumber = -1;
+    int LineNumber;
 };
 
-inline std::wstring AnsiToWString(const std::string& str)
+inline std::wstring AnsiToWString(const std::string& str) 
 {
     WCHAR buffer[512];
     MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, buffer, 512);
@@ -47,8 +47,8 @@ public:
 
 public:
 
-    virtual bool DeviceInitialized() = 0;
-    virtual void D3DInitialized() = 0;
+    virtual bool DeviceInitialized() const = 0;
+    virtual void D3DInitialized() const = 0;
 	virtual void CreateDeviceDebugFactory() = 0;
     virtual void CreateCommandObjects() = 0;
     virtual void CreateSwapChain() = 0;
@@ -64,15 +64,15 @@ public:
     virtual void SetDepthStencilView() = 0;
     virtual void UpdateViewport() = 0;
     virtual void SetViewportScissorRect() = 0;
-    virtual void ClearRTVAndStencil() = 0;
+    virtual void ClearRTVAndStencil() const = 0;
     virtual void SetRenderTarget() = 0;
     virtual void Present() = 0;
     virtual void PrepareCommandListAndAllocator() = 0;
 
     void GetNewWindowSize(int w, int h);
 
-    HWND hWnd;
-    int mClientWidth;
-    int mClientHeight;
+    HWND hWnd{};
+    int mClientWidth{};
+    int mClientHeight{};
     const DirectX::XMVECTORF32 mRTVClearColor = DirectX::Colors::LightSteelBlue;
 };

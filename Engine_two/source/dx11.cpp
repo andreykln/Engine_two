@@ -1,13 +1,13 @@
 #include "dx11.h"
 
-bool Device_DirectX11::DeviceInitialized()
+bool Device_DirectX11::DeviceInitialized() const
 {
 	if (mDevice)
 		return true;
 	return false;
 }
 
-void Device_DirectX11::D3DInitialized()
+void Device_DirectX11::D3DInitialized() const
 {
 	assert(mDevice);
 	assert(mSwapChain);
@@ -154,7 +154,7 @@ void Device_DirectX11::SetViewportScissorRect()
 	mDeviceContext->RSSetViewports(1u, &mScreenViewport);
 }
 
-void Device_DirectX11::ClearRTVAndStencil()
+void Device_DirectX11::ClearRTVAndStencil() const
 {
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView.Get(), mRTVClearColor);
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);

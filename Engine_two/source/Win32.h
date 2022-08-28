@@ -13,7 +13,7 @@ public:
 	HWND GetMainWindow() const;
 	void SetWindowParams(int w, int h);
 	void SetWindowTitle(const std::string& s) const;
-	bool IsPaused() const;
+	const bool IsPaused() const;
 	std::pair<LONG, LONG> GetMousePosition();
 public:
 	void OnMouseMove(WPARAM state, int x, int y);
@@ -30,6 +30,8 @@ public:
 	Timer   mTimer{};
 	POINT mNewMousePosition{};
 	static std::pair<LONG, LONG> mMousePosition;
+	//TODO this is overwritten by change window title
+	//after adding iMGui make sure it works
 #ifdef _DIRECTX12
 	const std::wstring mMainWndCaption{ L"DirectX 12" };
 #endif // _DIRECTX12
