@@ -14,7 +14,9 @@ public:
 	void SetWindowParams(int w, int h);
 	void SetWindowTitle(const std::string& s) const;
 	bool IsPaused() const;
+	std::pair<LONG, LONG> GetMousePosition();
 public:
+	void OnMouseMove(WPARAM state, int x, int y);
 	static Win32* GetHandle();
 	HINSTANCE mInstance{};
 	HWND      mhMainWnd{};
@@ -25,7 +27,9 @@ public:
 	bool    mResizing{ false };
 	bool	mMinimized{ false };
 	bool	mMaximized{ false };
-	Timer   mTimer;
+	Timer   mTimer{};
+	POINT mNewMousePosition{};
+	static std::pair<LONG, LONG> mMousePosition;
 #ifdef _DIRECTX12
 	const std::wstring mMainWndCaption{ L"DirectX 12" };
 #endif // _DIRECTX12

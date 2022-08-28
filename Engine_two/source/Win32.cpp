@@ -1,6 +1,7 @@
 #include "Win32.h"
 
 Win32* Win32::mWindowInstance = nullptr;
+std::pair<LONG, LONG> Win32::mMousePosition;
 
 LRESULT CALLBACK
 MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -8,6 +9,19 @@ MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	// Forward hwnd on because we can get messages (e.g., WM_CREATE)
 	// before CreateWindow returns, and thus before mhMainWnd is valid.
 	return Win32::GetHandle()->MsgProc(hwnd, msg, wParam, lParam);
+}
+
+void Win32::OnMouseMove(WPARAM state, int x, int y)
+{
+
+	if(GetCursorPos(&mNewMousePosition))
+	ScreenToClient(mhMainWnd, &mNewMousePosition);
+	else
+	{
+#ifdef _DEBUG
+		spdlog::error("Error in getting cursor position");
+#endif // _DEBUG
+	}
 }
 
 Win32* Win32::GetHandle()
@@ -62,16 +76,12 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 			else if (wParam == SIZE_RESTORED)
 			{
-
-				// Restoring from minimized state?
 				if (mMinimized)
 				{
 					mAppPaused = false;
 					mMinimized = false;
 					Render::OnResize();
 				}
-
-				// Restoring from maximized state?
 				else if (mMaximized)
 				{
 					mAppPaused = false;
@@ -80,14 +90,8 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 				else if (mResizing)
 				{
-					// If user is dragging the resize bars, we do not resize 
-					// the buffers here because as the user continuously 
-					// drags the resize bars, a stream of WM_SIZE messages are
-					// sent to the window, and it would be pointless (and slow)
-					// to resize for each WM_SIZE message received from dragging
-					// the resize bars.  So instead, we reset after the user is 
-					// done resizing the window and releases the resize bars, which 
-					// sends a WM_EXITSIZEMOVE message.
+					//this block kept empty in order to prevent
+					//continuos swap chain creating during resizing.
 				}
 				else // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
 				{
@@ -95,6 +99,11 @@ LRESULT Win32::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 		}
+		return DEF_WIND_PROC;
+	}
+	case WM_MOUSEMOVE:
+	{
+		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return DEF_WIND_PROC;
 	}
 	case WM_ENTERSIZEMOVE:
@@ -137,15 +146,13 @@ bool Win32::InitializeMainWindow()
 		MessageBox(0, L"RegisterClass Failed.", 0, 0);
 		return false;
 	}
-	// Compute window rectangle dimensions based on requested client area dimensions.
+
 	RECT R = { 0, 0, mClientWidth, mClientHeight };
 	AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
 	const int width = R.right - R.left;
 	const int height = R.bottom - R.top;
-	//HWND t;
 	mhMainWnd = CreateWindow(L"MainWnd", mMainWndCaption.c_str(),
 		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, mInstance, 0);
-	//mhMainWnd = &t;
 	if (!mhMainWnd)
 	{
 		MessageBox(0, L"CreateWindow Failed.", 0, 0);
@@ -185,6 +192,15 @@ void Win32::SetWindowTitle(const std::string& s) const
 bool Win32::IsPaused() const
 {
 	return mAppPaused;
+}
+
+
+std::pair<LONG, LONG> Win32::GetMousePosition()
+{
+	mMousePosition.first = mNewMousePosition.x;
+	mMousePosition.second = mNewMousePosition.y;
+
+	return mMousePosition;
 }
 
 

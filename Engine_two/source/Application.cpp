@@ -41,8 +41,7 @@ int Application::Run()
 			mTimer.Tick();
 			if (!pWin32Handle->IsPaused())
 			{
-				std::string t = std::to_string(mTimer.TotalTime());
-				pWin32Handle->SetWindowTitle(t);
+				UpdateWindowTitle();
 				DoFrame();
 			}
 			else
@@ -58,6 +57,17 @@ int Application::Run()
 void Application::DoFrame()
 {
 	Render::DrawEmptyScreen();
+}
+
+void Application::UpdateWindowTitle()
+{
+	//TODO temporary expensive coordinate logging, move to ImGUI
+	std::string t = std::to_string(mTimer.TotalTime());
+	std::pair<LONG, LONG> mouse = pWin32Handle->GetMousePosition();
+	t += ", " + std::to_string(mouse.first);
+	t += ", " + std::to_string(mouse.second);
+	pWin32Handle->SetWindowTitle(t);
+
 }
 
 

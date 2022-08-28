@@ -10,6 +10,7 @@ public:
 	int Run();
 private:
 	void DoFrame();
+	void UpdateWindowTitle();
 	bool InitializeMainWindow() const;
 	std::unique_ptr<Win32> pWin32Handle;
 	Timer mTimer;
@@ -20,7 +21,6 @@ private:
 	int mHeigth = 480;
 
 
-	//bool    mFullscreenState{ false };
 	bool    m4xMsaaState{ false };
 	UINT    m4xMsaaQuality{ 0 };
 
